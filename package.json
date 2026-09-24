@@ -1,0 +1,37 @@
+{
+  "name": "typora-mcp",
+  "version": "1.0.0",
+  "description": "Model Context Protocol (MCP) server for Typora Markdown Editor on Windows",
+  "main": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "typora-mcp": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "sync-schemas": "node sync-schemas.mjs"
+  },
+  "keywords": [
+    "typora",
+    "mcp",
+    "model-context-protocol",
+    "markdown",
+    "antigravity",
+    "claude",
+    "editor"
+  ],
+  "author": "Aaradhya Dev Tamrakar",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.1",
+    "marked": "^15.0.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.9",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}
