@@ -13,7 +13,8 @@ import {
   getThemeCss,
   installTheme,
   setTheme,
-  renderTyporaHtml
+  renderTyporaHtml,
+  exportTyporaPdf
 } from "./typora.js";
 
 export async function handleToolCall(
@@ -142,6 +143,21 @@ export async function handleToolCall(
 
       case "typora_render_html": {
         const res = await renderTyporaHtml({
+          content: args?.content,
+          inputPath: args?.input_path,
+          outputPath: args?.output_path,
+          theme: args?.theme
+        });
+        return {
+          content: [{ type: "text", text: JSON.stringify(res, null, 2) }]
+        };
+      }
+
+      case "typora_export_pdf": {
+        if (!args?.output_path) {
+          throw new Error("Missing required argument: 'output_path'");
+        }
+        const res = await exportTyporaPdf({
           content: args?.content,
           inputPath: args?.input_path,
           outputPath: args?.output_path,

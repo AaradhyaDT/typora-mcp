@@ -220,6 +220,32 @@ export const TOOLS = [
         }
     },
     {
+        name: "typora_export_pdf",
+        description: "Export Markdown content or an input Markdown file directly to a styled PDF using Typora CSS themes and synchronous headless browser rendering with valid file URIs.",
+        inputSchema: {
+            type: "object",
+            properties: {
+                input_path: {
+                    type: "string",
+                    description: "Path to the source Markdown file to convert to PDF."
+                },
+                content: {
+                    type: "string",
+                    description: "Direct Markdown text to convert (used if input_path is not specified)."
+                },
+                output_path: {
+                    type: "string",
+                    description: "Required destination PDF file path."
+                },
+                theme: {
+                    type: "string",
+                    description: "Typora theme to use for PDF styling (e.g. 'github', 'night', 'newsprint', 'pixyll', 'whitey'). Defaults to the active Typora theme."
+                }
+            },
+            required: ["output_path"]
+        }
+    },
+    {
         name: "typora_close",
         description: "Gracefully terminate running Typora processes on Windows, or kill a specific Typora window by process ID.",
         inputSchema: {

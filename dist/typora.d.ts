@@ -155,4 +155,17 @@ export declare function renderTyporaHtml(params: {
     themeUsed: string;
     charCount: number;
 }>;
+/**
+ * Export Markdown directly to a styled PDF file using Typora's theme and headless browser rendering
+ */
+export declare function exportTyporaPdf(params: {
+    inputPath?: string;
+    content?: string;
+    outputPath: string;
+    theme?: string;
+}): Promise<{
+    pdfPath: string;
+    sizeBytes: number;
+    themeUsed: string;
+}>;
 //# sourceMappingURL=typora.d.ts.map

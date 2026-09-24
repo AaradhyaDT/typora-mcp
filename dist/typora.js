@@ -1,5 +1,7 @@
 import fs from "fs";
 import path from "path";
+import os from "os";
+import { pathToFileURL } from "url";
 import { execSync, spawn, execFileSync } from "child_process";
 import { marked } from "marked";
 import { getTyporaExe, getTyporaThemesDir, getTyporaBuiltinThemesDir, getTyporaBaseCss, getTyporaDraftsDir, getTyporaBackupsDir, getTyporaHistoryFile, getTyporaProfileFile, getTyporaUserConfigFile } from "./config.js";
@@ -512,6 +514,67 @@ ${parsedBody}
         html: fullHtml,
         themeUsed: chosenTheme,
         charCount: fullHtml.length
+    };
+}
+function getBrowserExe() {
+    const possiblePaths = [
+        "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+        "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
+        "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
+    ];
+    for (const p of possiblePaths) {
+        if (fs.existsSync(p))
+            return p;
+    }
+    throw new Error("No compatible headless browser (Edge or Chrome) found for PDF export.");
+}
+/**
+ * Export Markdown directly to a styled PDF file using Typora's theme and headless browser rendering
+ */
+export async function exportTyporaPdf(params) {
+    const rendered = await renderTyporaHtml({
+        inputPath: params.inputPath,
+        content: params.content,
+        theme: params.theme
+    });
+    const tempHtml = path.join(os.tmpdir(), `typora_pdf_${Date.now()}_${Math.random().toString(36).slice(2)}.html`);
+    fs.writeFileSync(tempHtml, rendered.html, "utf8");
+    const outResolved = path.resolve(params.outputPath);
+    const outDir = path.dirname(outResolved);
+    if (!fs.existsSync(outDir)) {
+        fs.mkdirSync(outDir, { recursive: true });
+    }
+    const browserExe = getBrowserExe();
+    const fileUri = pathToFileURL(tempHtml).href;
+    try {
+        execFileSync(browserExe, [
+            "--headless",
+            "--disable-gpu",
+            "--no-pdf-header-footer",
+            `--print-to-pdf=${outResolved}`,
+            fileUri
+        ], {
+            windowsHide: true,
+            timeout: 30000
+        });
+    }
+    finally {
+        if (fs.existsSync(tempHtml)) {
+            try {
+                fs.unlinkSync(tempHtml);
+            }
+            catch { }
+        }
+    }
+    if (!fs.existsSync(outResolved)) {
+        throw new Error(`PDF generation failed: Output file not created at ${outResolved}`);
+    }
+    const stat = fs.statSync(outResolved);
+    return {
+        pdfPath: outResolved,
+        sizeBytes: stat.size,
+        themeUsed: rendered.themeUsed
     };
 }
 function formatRelativeTime(timestamp) {
